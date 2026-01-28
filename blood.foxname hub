@@ -1,0 +1,112 @@
+local Players = game:GetService("Players")
+local ReplicatedStorage = game:GetService("ReplicatedStorage")
+local Player = Players.LocalPlayer
+
+local ScreenGui = Instance.new("ScreenGui")
+ScreenGui.ResetOnSpawn = false
+ScreenGui.Parent = Player:WaitForChild("PlayerGui")
+
+local Frame = Instance.new("Frame", ScreenGui)
+Frame.Size = UDim2.fromOffset(260, 180)
+Frame.Position = UDim2.fromScale(0.05, 0.35)
+Frame.BackgroundColor3 = Color3.fromRGB(35, 35, 35)
+Frame.Active = true
+Frame.Draggable = true
+Instance.new("UICorner", Frame).CornerRadius = UDim.new(0, 10)
+
+local Title = Instance.new("TextLabel", Frame)
+Title.Size = UDim2.new(1, -40, 0, 30)
+Title.Position = UDim2.fromOffset(10, 0)
+Title.BackgroundTransparency = 1
+Title.Text = "Katana Scripts"
+Title.TextColor3 = Color3.new(1,1,1)
+Title.Font = Enum.Font.GothamBold
+Title.TextSize = 16
+Title.TextXAlignment = Enum.TextXAlignment.Left
+
+local MinBtn = Instance.new("ImageButton", Frame)
+MinBtn.Size = UDim2.fromOffset(24, 24)
+MinBtn.Position = UDim2.fromOffset(226, 3)
+MinBtn.BackgroundTransparency = 1
+MinBtn.Image = "rbxassetid://1014109561"
+
+local function btn(text, x, y)
+    local b = Instance.new("TextButton", Frame)
+    b.Size = UDim2.new(0.45, -10, 0, 35)
+    b.Position = UDim2.fromOffset(x, y)
+    b.Text = text
+    b.BackgroundColor3 = Color3.fromRGB(60, 60, 60)
+    b.TextColor3 = Color3.new(1,1,1)
+    b.Font = Enum.Font.Gotham
+    b.TextSize = 14
+    Instance.new("UICorner", b)
+    return b
+end
+
+local S1On  = btn("Dummy ON", 10, 40)
+local S1Off = btn("Dummy OFF", 135, 40)
+local S2On  = btn("Player ON", 10, 90)
+local S2Off = btn("Player OFF", 135, 90)
+
+local Script1 = false
+local Script2 = false
+
+S1On.MouseButton1Click:Connect(function() Script1 = true end)
+S1Off.MouseButton1Click:Connect(function() Script1 = false end)
+S2On.MouseButton1Click:Connect(function() Script2 = true end)
+S2Off.MouseButton1Click:Connect(function() Script2 = false end)
+
+local minimized = false
+MinBtn.MouseButton1Click:Connect(function()
+    minimized = not minimized
+    S1On.Visible = not minimized
+    S1Off.Visible = not minimized
+    S2On.Visible = not minimized
+    S2Off.Visible = not minimized
+    Frame.Size = minimized and UDim2.fromOffset(260, 35) or UDim2.fromOffset(260, 180)
+end)
+
+local function getKatana()
+    return (Player.Character and Player.Character:FindFirstChild("Katana")) or Player.Backpack:FindFirstChild("Katana")
+end
+
+local HitRemote = ReplicatedStorage.Assets.Remotes.Hit
+
+task.spawn(function()
+    while true do
+        task.wait(0.1)
+        if Script1 then
+            local katana = getKatana()
+            if katana then
+                for _, npc in pairs(workspace.Characters:GetChildren()) do
+                    if npc.Name:match("^Dummy%d+$") then
+                        local humanoid = npc:FindFirstChild("Humanoid")
+                        if humanoid and humanoid.Health > 0 then
+                            HitRemote:FireServer(katana, humanoid, 1)
+                        end
+                    end
+                end
+            end
+        end
+    end
+end)
+
+task.spawn(function()
+    while true do
+        task.wait(0.1)
+        if Script2 then
+            local katana = getKatana()
+            if katana then
+                for _, target in pairs(Players:GetPlayers()) do
+                    if target ~= Player then
+                        local char = target.Character
+                        local humanoid = char and char:FindFirstChild("Humanoid")
+                        if humanoid and humanoid.Health > 0 then
+                            HitRemote:FireServer(katana, humanoid, 2)
+                        end
+                    end
+                end
+            end
+        end
+    end
+end)
