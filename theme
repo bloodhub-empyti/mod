@@ -1,0 +1,159 @@
+local cloneref = (cloneref or clonereference or function(instance: any)
+    return instance
+end)
+
+local clonefunction = (clonefunction or copyfunction or function(func) 
+    return func 
+end)
+
+local HttpService: HttpService = cloneref(game:GetService("HttpService"))
+local isfolder, isfile, listfiles = isfolder, isfile, listfiles
+
+if typeof(clonefunction) == "function" then
+    local isfolder_copy, isfile_copy, listfiles_copy =
+        clonefunction(isfolder),
+        clonefunction(isfile),
+        clonefunction(listfiles)
+
+    local isfolder_success, isfolder_error = pcall(function()
+        return isfolder_copy("test" .. tostring(math.random(1000000, 9999999)))
+    end)
+
+    if isfolder_success == false or typeof(isfolder_error) ~= "boolean" then
+        isfolder = function(folder)
+            local success, data = pcall(isfolder_copy, folder)
+            return (if success then data else false)
+        end
+
+        isfile = function(file)
+            local success, data = pcall(isfile_copy, file)
+            return (if success then data else false)
+        end
+
+        listfiles = function(folder)
+            local success, data = pcall(listfiles_copy, folder)
+            return (if success then data else {})
+        end
+    end
+end
+
+local ThemeManager = {}
+do
+    local ThemeFields = { "FontColor", "MainColor", "AccentColor", "BackgroundColor", "OutlineColor" }
+
+    ThemeManager.Folder = "ObsidianLibSettings"
+    ThemeManager.Library = nil
+    ThemeManager.AppliedToTab = false
+
+    ThemeManager.BuiltInThemes = {
+        ["Default"] = {
+            1,
+            { FontColor = "ffffff", MainColor = "191919", AccentColor = "7d55ff", BackgroundColor = "0f0f0f", OutlineColor = "282828" },
+        },
+
+        ["BBot"] = {
+            2,
+            { FontColor = "ffffff", MainColor = "1e1e1e", AccentColor = "7e48a3", BackgroundColor = "232323", OutlineColor = "141414" },
+        },
+
+        ["Fatality"] = {
+            3,
+            { FontColor = "ffffff", MainColor = "1e1842", AccentColor = "c50754", BackgroundColor = "191335", OutlineColor = "3c355d" },
+        },
+
+        ["Cyberpunk"] = {
+            16,
+            { FontColor = "f9f9f9", MainColor = "262335", AccentColor = "00ff9f", BackgroundColor = "1a1a2e", OutlineColor = "413c5e" },
+        },
+
+        -- ❄️ AQUA ICE THEME (NEW)
+        ["Aqua Ice"] = {
+            19,
+            {
+                FontColor = "e6ffff",
+                MainColor = "0f1a1a",
+                AccentColor = "3ca5a5",
+                BackgroundColor = "0b1212",
+                OutlineColor = "1f3f3f"
+            },
+        },
+    }
+
+    function ThemeManager:SetLibrary(library)
+        self.Library = library
+    end
+
+    function ThemeManager:ApplyTheme(theme)
+        local customThemeData = self:GetCustomTheme(theme)
+        local data = customThemeData or self.BuiltInThemes[theme]
+
+        if not data then return end
+
+        local scheme = data[2]
+
+        for idx, val in pairs(customThemeData or scheme) do
+            if idx ~= "FontFace" then
+                self.Library.Scheme[idx] = Color3.fromHex(val)
+
+                if self.Library.Options[idx] then
+                    self.Library.Options[idx]:SetValueRGB(Color3.fromHex(val))
+                end
+            end
+        end
+
+        self:ThemeUpdate()
+    end
+
+    function ThemeManager:ThemeUpdate()
+        for _, field in ThemeFields do
+            if self.Library.Options and self.Library.Options[field] then
+                self.Library.Scheme[field] = self.Library.Options[field].Value
+            end
+        end
+
+        self.Library:UpdateColorsUsingRegistry()
+    end
+
+    function ThemeManager:GetCustomTheme(file)
+        local path = self.Folder .. "/themes/" .. file .. ".json"
+        if not isfile(path) then return nil end
+
+        local data = readfile(path)
+        local success, decoded = pcall(HttpService.JSONDecode, HttpService, data)
+
+        if not success then return nil end
+        return decoded
+    end
+
+    function ThemeManager:CreateThemeManager(groupbox)
+        groupbox:AddLabel("Background color"):AddColorPicker("BackgroundColor")
+        groupbox:AddLabel("Main color"):AddColorPicker("MainColor")
+        groupbox:AddLabel("Accent color"):AddColorPicker("AccentColor")
+        groupbox:AddLabel("Outline color"):AddColorPicker("OutlineColor")
+        groupbox:AddLabel("Font color"):AddColorPicker("FontColor")
+
+        local ThemesArray = {}
+        for name in pairs(self.BuiltInThemes) do
+            table.insert(ThemesArray, name)
+        end
+
+        groupbox:AddDropdown("ThemeManager_ThemeList", {
+            Text = "Themes",
+            Values = ThemesArray,
+        })
+
+        self.Library.Options.ThemeManager_ThemeList:OnChanged(function()
+            self:ApplyTheme(self.Library.Options.ThemeManager_ThemeList.Value)
+        end)
+
+        self:ApplyTheme("Aqua Ice")
+        self.AppliedToTab = true
+    end
+
+    function ThemeManager:ApplyToGroupbox(groupbox)
+        self:CreateThemeManager(groupbox)
+    end
+end
+
+getgenv().ObsidianThemeManager = ThemeManager
+return ThemeManager 
