@@ -1,11 +1,3 @@
---- hackmanhub deober v1.2
--- ob MoonSecV3
-
---- https://discord.gg/cuwKyeuCVR
-
---- script from hackmanhub users
-
-
 local Players = game:GetService("Players")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local player = Players.LocalPlayer
@@ -538,15 +530,14 @@ end
 local function autoJoinRandomTeam()
     while autoJoinRandomTeamEnabled do
         if not player.Team or player.Team.Name == "Visitor" then
-            -- Select random team and role
+            -- kkk
             local randomTeam = teams[math.random(1, #teams)]
             local randomRole = roles[math.random(1, #roles)]
             
-            -- Fire team selection remote
+            
             local args = {randomTeam, randomRole}
             game:GetService("ReplicatedStorage").Packages.Knit.Services.TeamService.RE.Select:FireServer(unpack(args))
-            
-            -- Wait to check if team join was successful
+			
             local startTime = tick()
             repeat
                 task.wait(0.1)
@@ -560,7 +551,7 @@ local function antiAFK()
     while antiAFKEnabled do
         VirtualUser:CaptureController()
         VirtualUser:ClickButton2(Vector2.new())
-        task.wait(300) -- Wait 5 minutes between each anti-AFK action
+        task.wait(300)
     end
 end
 
@@ -616,11 +607,11 @@ local function startCFrameSpeed()
 end
 
 local Window = Luna:CreateWindow({
-    Name = "The BillDev Hub (Blue Lock Rivals)",
-    Subtitle = "by Galaxy/Jah/Whohurtyoudear",
-    LogoID = "75237883871377",
+    Name = "Blue Lock",
+    Subtitle = "hi",
+    LogoID = "87122722614578",
     LoadingEnabled = true,
-    LoadingTitle = "TheBillDevHub (Blue Lock Rivals)",
+    LoadingTitle = "Blue Lock",
     LoadingSubtitle = "by Galaxy/Jah/Whohurtyoudear",
     ConfigSettings = {
         RootFolder = "BillDevHub", 
@@ -630,9 +621,9 @@ local Window = Luna:CreateWindow({
 })
 
 Window:CreateHomeTab({
-    SupportedExecutors = {"Delta", "Fluxus", "Codex", "Cryptic", "Vegax", "Trigon", "Synapse X", "Script-Ware", "KRNL", "Seliware", "Solara", "Xeno", "ZORARA", "Luna", "Nihon", "JJsploit", "AWP", "Wave", "Ronix"},
-    DiscordInvite = "https://discord.gg/D3T4ArjBqk",
-    Icon = 75237883871377,
+    SupportedExecutors = {"Delta"},
+    DiscordInvite = "https://discord.gg/hFjByZETdx",
+    Icon = 87122722614578,
 })
 local MainTab = Window:CreateTab({
     Name = "Main",
